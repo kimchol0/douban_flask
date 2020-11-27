@@ -2,7 +2,7 @@
 ######应用Python爬虫、Flask框架、Echarts、WordCloud等技术实现 
 ***
 ####首页页面 
-![avatar](./static/assets/img/index.png) 
+![add image](https://github.com/kimchol0/douban_flask/tree/master/static/assets/img/index.png) 
 ***
 ####电影页面 
 ![avatar](./static/assets/img/movie.png) 
