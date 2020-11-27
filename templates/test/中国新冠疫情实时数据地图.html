@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>中国新冠疫情实时数据地图</title>
+  <style>
+    #myEcharts {
+      width: 800px;
+      height: 500px;
+      border: solid 1px red;
+      margin: 0 auto;
+    }
+  </style>
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js"></script>
+  <!-- 引入 echarts.js -->
+  <script src="https://cdn.bootcss.com/echarts/3.7.1/echarts.min.js"></script>
+  <!--引入中国的地图数据js文件，引入后会自动注册地图名字和数据-->
+  <script src="https://cdn.jsdelivr.net/npm/echarts/map/js/china.js?_v_=1598903772045"></script>
+
+</head>
+
+<body>
+  <!--为echarts准备一个dom容器-->
+  <div id="myEcharts"></div>
+  <script>
+    //初始化echarts实例
+    var myChart = echarts.init(document.getElementById('myEcharts'));
+    // 指定图表的配置项和数据
+    option = {
+      title: {
+        text: '中国新冠疫情实时数据地图',
+        left: 'center'
+      },
+      tooltip: {
+        trigger: 'item'
+      },
+      legend: {
+        orient: 'vertical',
+        left: 'left',
+        data: ['中国新冠疫情实时数据地图']
+      },
+      visualMap: {
+        type: 'piecewise',
+        pieces: [
+          { min: 10000, max: 1000000, label: '确诊大于等于10000人', color: '#372a28' },
+          { min: 5000, max: 9999, label: '确诊5000-9999人', color: '#4e160f' },
+          { min: 1000, max: 4999, label: '确诊1000-4999人', color: '#974236' },
+          { min: 100, max: 999, label: '确诊100-999人', color: '#ee7263' },
+          { min: 1, max: 99, label: '确诊1-99人', color: '#f5bba7' },
+        ],
+        color: ['#E0022B', '#E09107', '#A3E00B']
+      },
+      toolbox: {
+        show: true,
+        orient: 'vertical',
+        left: 'right',
+        top: 'center',
+        feature: {
+          mark: { show: true },
+          dataView: { show: true, readOnly: false },
+          restore: { show: true },
+          saveAsImage: { show: true }
+        }
+      },
+      roamController: {
+        show: true,
+        left: 'right',
+        mapTypeControl: {
+          'china': true
+        }
+      },
+      series: [
+        {
+          name: '确诊数',
+          type: 'map',
+          mapType: 'china',
+          roam: false,
+          label: {
+            show: true,
+            color: 'rgb(249, 249, 249)'
+          },
+          data: []
+        }
+      ]
+    };
+
+    //调用腾讯疫情实时数据接口。因为该接口跟我们的数据格式不同，所以需要先做格式转换再显示...
+    $.ajax({
+        url: "https://view.inews.qq.com/g2/getOnsInfo?name=disease_h5",
+        dataType: "jsonp", //jsonp做跨域访问
+        success: function (res) {
+          let dataBefore = JSON.parse(res.data).areaTree[0];
+          let dataAfter = dataBefore.children.map(province => ({//接受到的数据进行数据格式转换...
+              name: province.name,
+              value: province.total.confirm,
+          }))
+          option.series[0].data = dataAfter;
+
+          myChart.setOption(option); //使用指定的配置项和数据显示图表
+        }
+    })
+
+  </script>
+</body>
+
+</html>
